@@ -14,12 +14,13 @@ const TodoItem: FC<TodoItemProps> = ({ task, toggleCompletion, removeTask, addCh
     const [addingChild, setAddingChild] = useState(false);
     const [childTask, setChildTask] = useState('');
     const inputRef = useRef<HTMLInputElement>(null);
+    const [treeOpen, setTreeOpen] = useState(true);
 
     const handleAddChild = () => {
         if (childTask.trim()) {
             addChildTask(task.id, childTask);
             setChildTask('');
-            setAddingChild(false);
+            inputRef.current?.focus();
         }
     };
 
@@ -54,8 +55,19 @@ const TodoItem: FC<TodoItemProps> = ({ task, toggleCompletion, removeTask, addCh
 
     return (
         <ul>
-            <li className="flex justify-between p-2 border-b">
-                <span className={task.completed ? 'line-through' : ''}>{task.task}</span>
+            <li className="flex justify-between border-b mb-2">
+                <span>
+                    <button className="text-xl w-10" onClick={() => setTreeOpen(!treeOpen)}>
+                        {
+                            (task.children.length !== 0) &&
+                            (treeOpen
+                                ? <i className="fa-solid fa-caret-down"></i>
+                                : <i className="fa-solid fa-caret-right"></i>
+                            )
+                        }
+                    </button>
+                </span>
+                <span className={clsx('grow', { 'line-through': task.completed })}>{task.task}</span>
                 <span>{task.completedAt?.toLocaleString() || ""}</span>
                 <span>
                     <button onClick={(e) => toggleCompletion(task.id)} className={
@@ -72,18 +84,20 @@ const TodoItem: FC<TodoItemProps> = ({ task, toggleCompletion, removeTask, addCh
                     </button>
                 </span>
             </li>
-            <li className="ml-5">
-                {task.children.filter(task => !task.completed || showCompleted).map(child => (
-                    <TodoItem
-                        key={child.id}
-                        task={child}
-                        toggleCompletion={toggleCompletion}
-                        removeTask={removeTask}
-                        addChildTask={addChildTask}
-                        showCompleted={showCompleted}
-                    />
-                ))}
-            </li>
+            {treeOpen && (
+                <li className="ml-5">
+                    {task.children.filter(task => !task.completed || showCompleted).map(child => (
+                        <TodoItem
+                            key={child.id}
+                            task={child}
+                            toggleCompletion={toggleCompletion}
+                            removeTask={removeTask}
+                            addChildTask={addChildTask}
+                            showCompleted={showCompleted}
+                        />
+                    ))}
+                </li>
+            )}
             {addingChild && (
                 <li className='ml-5'>
                     <input
