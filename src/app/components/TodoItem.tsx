@@ -55,7 +55,7 @@ const TodoItem: FC<TodoItemProps> = ({ task, toggleCompletion, removeTask, addCh
 
     return (
         <ul>
-            <li className="flex justify-between border-b mb-2">
+            <li className="flex justify-between border-b py-2 hover:bg-slate-200 dark:hover:bg-slate-800">
                 <span>
                     <button className="text-xl w-10" onClick={() => setTreeOpen(!treeOpen)}>
                         {
@@ -67,15 +67,19 @@ const TodoItem: FC<TodoItemProps> = ({ task, toggleCompletion, removeTask, addCh
                         }
                     </button>
                 </span>
+                <span>
+                    <button onClick={(e) => toggleCompletion(task.id)} className={
+                        clsx('text-xl', 'mr-3')}>
+                        {
+                            task.completed
+                                ? <i className="fa-regular fa-circle-check text-green-500"></i>
+                                : <i className="fa-regular fa-circle"></i>
+                        }
+                    </button>
+                </span>
                 <span className={clsx('grow', { 'line-through': task.completed })}>{task.task}</span>
                 <span>{task.completedAt?.toLocaleString() || ""}</span>
                 <span>
-                    <button onClick={(e) => toggleCompletion(task.id)} className={
-                        clsx('text-xl', 'mr-3', {
-                            'text-green-500': task.completed,
-                        })}>
-                        <i className="fa-solid fa-check"></i>
-                    </button>
                     <button onClick={() => setAddingChild(true)} className="text-xl mr-3">
                         <i className="fa-solid fa-plus"></i>
                     </button>

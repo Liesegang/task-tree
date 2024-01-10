@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { FC } from 'react';
 import TodoList from './components/TodoList';
 
-// Todoアプリの中身
-const Home = () => {
+const Home: FC = () => {
     return (
         <div className="container mx-auto p-8 max-w-screen-xl">
-            <h1 className="text-2xl mb-4 text-center">Todo App</h1>
+            <h1 className="text-2xl mb-4 text-center">Task Tree</h1>
             <TodoList />
         </div>
     );

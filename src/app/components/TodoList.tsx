@@ -15,11 +15,13 @@ export class Task {
     public id: string;
     public children: Task[];
     public completedAt: Date | null;
+    public document: string;
 
     constructor(public task: string, public completed: boolean = false, children?: Task[]) {
         this.id = uuidv4();
         this.children = children ?? [];
         this.completedAt = null;
+        this.document = "";
     }
 }
 
