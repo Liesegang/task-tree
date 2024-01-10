@@ -1,4 +1,5 @@
 import React, { FC, useState, useRef, useEffect } from 'react';
+import clsx from 'clsx';
 import { Task } from './TodoList';
 
 interface TodoItemProps {
@@ -6,9 +7,10 @@ interface TodoItemProps {
     toggleCompletion: (id: string) => void;
     removeTask: (id: string) => void;
     addChildTask: (parent: string, childTask: string) => void;
+    showCompleted: boolean;
 }
 
-const TodoItem: FC<TodoItemProps> = ({ task, toggleCompletion, removeTask, addChildTask }) => {
+const TodoItem: FC<TodoItemProps> = ({ task, toggleCompletion, removeTask, addChildTask, showCompleted }) => {
     const [addingChild, setAddingChild] = useState(false);
     const [childTask, setChildTask] = useState('');
     const inputRef = useRef<HTMLInputElement>(null);
@@ -51,44 +53,51 @@ const TodoItem: FC<TodoItemProps> = ({ task, toggleCompletion, removeTask, addCh
     }, [addingChild, childTask]);
 
     return (
-        <div>
-            <div className="flex justify-between p-2 border-b bg-white mb-5">
-                <span>{task.task}</span>
+        <ul>
+            <li className="flex justify-between p-2 border-b">
+                <span className={task.completed ? 'line-through' : ''}>{task.task}</span>
+                <span>{task.completedAt?.toLocaleString() || ""}</span>
                 <span>
-                    <button onClick={(e) => toggleCompletion(task.id)} className="text-xl">
-                        ✓
+                    <button onClick={(e) => toggleCompletion(task.id)} className={
+                        clsx('text-xl', 'mr-3', {
+                            'text-green-500': task.completed,
+                        })}>
+                        <i className="fa-solid fa-check"></i>
                     </button>
-                    <button onClick={() => setAddingChild(true)} className="text-xl">
-                        +
+                    <button onClick={() => setAddingChild(true)} className="text-xl mr-3">
+                        <i className="fa-solid fa-plus"></i>
                     </button>
-                    <button onClick={(e) => removeTask(task.id)} className="text-xl">
-                        🗑
+                    <button onClick={(e) => removeTask(task.id)} className="text-xl mr-1">
+                        <i className="fa-solid fa-delete-left"></i>
                     </button>
                 </span>
-            </div>
-            {addingChild && (
-                <input
-                    ref={inputRef}
-                    type="text"
-                    placeholder="Add a child task"
-                    value={childTask}
-                    onChange={(e) => setChildTask(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleAddChild()}
-                    className="p-2 border rounded w-full mb-8 ml-5"
-                />
-            )}
-            <div className="ml-5">
-                {task.children.map(child => (
+            </li>
+            <li className="ml-5">
+                {task.children.filter(task => !task.completed || showCompleted).map(child => (
                     <TodoItem
                         key={child.id}
                         task={child}
                         toggleCompletion={toggleCompletion}
                         removeTask={removeTask}
                         addChildTask={addChildTask}
+                        showCompleted={showCompleted}
                     />
                 ))}
-            </div>
-        </div>
+            </li>
+            {addingChild && (
+                <li className='ml-5'>
+                    <input
+                        ref={inputRef}
+                        type="text"
+                        placeholder="Add a child task"
+                        value={childTask}
+                        onChange={(e) => setChildTask(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleAddChild()}
+                        className="p-2 border w-full rounded dark:bg-slate-800 dark:text-slate-200"
+                    />
+                </li>
+            )}
+        </ul>
     );
 };
 
