@@ -1,9 +1,10 @@
 import React, { FC, useState, useRef, useEffect } from 'react';
 import clsx from 'clsx';
 import { Task } from './TodoList';
+import { TreeItems } from 'dnd-kit-sortable-tree';
 
 interface TodoItemProps {
-    task: Task;
+    task: TreeItems<Task>;
     toggleCompletion: (id: string) => void;
     removeTask: (id: string) => void;
     addChildTask: (parent: string, childTask: string) => void;
@@ -14,7 +15,6 @@ const TodoItem: FC<TodoItemProps> = ({ task, toggleCompletion, removeTask, addCh
     const [addingChild, setAddingChild] = useState(false);
     const [childTask, setChildTask] = useState('');
     const inputRef = useRef<HTMLInputElement>(null);
-    const [treeOpen, setTreeOpen] = useState(true);
 
     const handleAddChild = () => {
         if (childTask.trim()) {
@@ -54,19 +54,8 @@ const TodoItem: FC<TodoItemProps> = ({ task, toggleCompletion, removeTask, addCh
     }, [addingChild, childTask]);
 
     return (
-        <ul>
-            <li className="flex justify-between border-b py-2 hover:bg-slate-200 dark:hover:bg-slate-800">
-                <span>
-                    <button className="text-xl w-10" onClick={() => setTreeOpen(!treeOpen)}>
-                        {
-                            (task.children.length !== 0) &&
-                            (treeOpen
-                                ? <i className="fa-solid fa-caret-down"></i>
-                                : <i className="fa-solid fa-caret-right"></i>
-                            )
-                        }
-                    </button>
-                </span>
+        <div className={clsx("bg-slate-100", "dark:bg-slate-900", "text-slate-900", "dark:text-slate-100", "w-full")}>
+            {(!task.completed || showCompleted) && (<div className="flex justify-between border-b py-2 hover:bg-slate-200 dark:hover:bg-slate-800">
                 <span>
                     <button onClick={(e) => toggleCompletion(task.id)} className={
                         clsx('text-xl', 'mr-3')}>
@@ -87,23 +76,9 @@ const TodoItem: FC<TodoItemProps> = ({ task, toggleCompletion, removeTask, addCh
                         <i className="fa-solid fa-delete-left"></i>
                     </button>
                 </span>
-            </li>
-            {treeOpen && (
-                <li className="ml-5">
-                    {task.children.filter(task => !task.completed || showCompleted).map(child => (
-                        <TodoItem
-                            key={child.id}
-                            task={child}
-                            toggleCompletion={toggleCompletion}
-                            removeTask={removeTask}
-                            addChildTask={addChildTask}
-                            showCompleted={showCompleted}
-                        />
-                    ))}
-                </li>
-            )}
+            </div>)}
             {addingChild && (
-                <li className='ml-5'>
+                <div className='ml-5'>
                     <input
                         ref={inputRef}
                         type="text"
@@ -113,9 +88,9 @@ const TodoItem: FC<TodoItemProps> = ({ task, toggleCompletion, removeTask, addCh
                         onKeyDown={(e) => e.key === 'Enter' && handleAddChild()}
                         className="p-2 border w-full rounded dark:bg-slate-800 dark:text-slate-200"
                     />
-                </li>
+                </div>
             )}
-        </ul>
+        </div>
     );
 };
 
